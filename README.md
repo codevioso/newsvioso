@@ -16,24 +16,34 @@ A modern, professional admin portal built with Laravel 10 backend and Vue 3 fron
 - **Role-based Access Control** (Super Admin, Editor, Reporter)
 - **Password Reset Flow** with 6-digit email codes
 - **Professional Login/Register Pages** with validation
+- **Persistent Authentication** across page reloads
 
 ### 🎨 **Modern UI/UX**
 - **Vue 3 SPA** with Vue Router and Pinia state management
 - **Tailwind CSS** with dark/light mode toggle
 - **Responsive Design** that works on all devices
 - **Professional Layout** with header, navigation, and sidebar
+- **Smooth Animations** and transitions throughout
 
 ### 🛡️ **Security & Permissions**
 - **Middleware-based Permissions** for API routes
 - **Frontend Permission Validation** using Pinia stores
 - **Role Hierarchy System** with flexible permission levels
 - **Secure Password Reset** with time-limited codes
+- **Password Strength Indicator** with real-time feedback
 
 ### 📊 **Admin Features**
 - **Dashboard** with real-time date/time display
 - **Role-specific Navigation** and quick actions
 - **User Management** (Super Admin only)
 - **System Settings** and configuration options
+
+### 👤 **Profile Management**
+- **Complete Profile System** with avatar upload
+- **User Avatar Display** throughout the application
+- **Profile Update** with form validation
+- **Password Change** with security validation
+- **Smart Fallbacks** to user initials when no avatar
 
 ## 🚀 Quick Start
 
@@ -95,18 +105,23 @@ A modern, professional admin portal built with Laravel 10 backend and Vue 3 fron
    php artisan db:seed
    ```
 
-8. **Build assets**
+8. **Create storage link for avatar uploads**
+   ```bash
+   php artisan storage:link
+   ```
+
+9. **Build assets**
    ```bash
    npm run build
    ```
 
-9. **Start the development server**
-   ```bash
-   php artisan serve
-   npm run dev
-   ```
+10. **Start the development server**
+    ```bash
+    php artisan serve
+    npm run dev
+    ```
 
-10. **Access the admin portal**
+11. **Access the admin portal**
     Visit: `http://localhost:8000/secure/administrator`
 
 ## 👥 Default Test Users
@@ -126,18 +141,20 @@ A modern, professional admin portal built with Laravel 10 backend and Vue 3 fron
 │   ├── Http/
 │   │   ├── Controllers/Api/
 │   │   │   ├── AuthController.php    # Authentication API
-│   │   │   └── DashboardController.php
+│   │   │   ├── DashboardController.php
+│   │   │   └── ProfileController.php # Profile management API
 │   │   └── Middleware/
 │   │       ├── CheckRole.php         # Role-based middleware
 │   │       └── CheckPermissionLevel.php
 │   ├── Mail/
 │   │   └── PasswordResetMail.php     # Email templates
 │   └── Models/
-│       └── User.php                   # Enhanced user model
+│       └── User.php                   # Enhanced user model with avatar support
 ├── resources/
 │   ├── js/
 │   │   ├── components/
 │   │   │   ├── App.vue
+│   │   │   ├── Avatar.vue            # Reusable avatar component
 │   │   │   └── layouts/
 │   │   │       └── AdminLayout.vue
 │   │   ├── pages/
@@ -145,6 +162,10 @@ A modern, professional admin portal built with Laravel 10 backend and Vue 3 fron
 │   │   │   │   ├── Login.vue
 │   │   │   │   ├── ForgotPassword.vue
 │   │   │   │   └── ResetPassword.vue
+│   │   │   ├── profile/
+│   │   │   │   ├── Profile.vue        # Profile display page
+│   │   │   │   ├── ProfileUpdate.vue  # Profile update form
+│   │   │   │   └── ChangePassword.vue # Password change form
 │   │   │   └── Dashboard.vue
 │   │   ├── stores/
 │   │   │   ├── auth.js               # Authentication store
@@ -176,6 +197,13 @@ A modern, professional admin portal built with Laravel 10 backend and Vue 3 fron
 | Method | Endpoint | Description | Role Required |
 |--------|----------|-------------|---------------|
 | `GET` | `/api/dashboard` | Dashboard data | Any authenticated user |
+
+### Profile Management Routes
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/profile` | Get user profile | ✅ |
+| `POST` | `/api/profile` | Update user profile | ✅ |
+| `POST` | `/api/profile/change-password` | Change password | ✅ |
 
 ### Role-based Routes
 - **Super Admin**: Full access to all routes
@@ -212,11 +240,14 @@ php artisan db:seed  # Seed database with test data
 
 ### Testing
 ```bash
-# Test Tailwind CSS
-Visit: http://localhost:8000/secure/administrator/test
-
 # Test authentication flow
 Visit: http://localhost:8000/secure/administrator/login
+
+# Test profile management
+Visit: http://localhost:8000/secure/administrator/profile
+
+# Test avatar upload
+Visit: http://localhost:8000/secure/administrator/profile/update
 ```
 
 ## 🚨 Troubleshooting
@@ -243,6 +274,12 @@ Visit: http://localhost:8000/secure/administrator/login
    - Check Vite configuration
    - Clear browser cache
 
+5. **Avatar upload issues**
+   - Ensure `php artisan storage:link` is run
+   - Check file permissions on storage directory
+   - Verify avatar file size (max 2MB)
+   - Check image format (JPG, PNG, GIF supported)
+
 ### Development Tips
 - Use browser dev tools to debug API calls
 - Check Laravel logs in `storage/logs/laravel.log`
@@ -256,6 +293,8 @@ Visit: http://localhost:8000/secure/administrator/login
 - Regularly update Laravel and dependencies
 - Never commit `.env` files to version control
 - Use strong passwords for database and mail configuration
+- Validate file uploads (avatars) for security
+- Set proper file permissions on storage directories
 
 ## 📚 Documentation
 
