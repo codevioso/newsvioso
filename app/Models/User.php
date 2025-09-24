@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'avatar',
         'reset_code',
         'reset_code_expires_at',
     ];

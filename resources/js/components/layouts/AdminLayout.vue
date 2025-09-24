@@ -106,11 +106,10 @@
                                 class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
                                 <span class="sr-only">Open user menu</span>
-                                <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                                    <span class="text-sm font-medium text-white">
-                                        {{ authStore.user?.name?.charAt(0).toUpperCase() }}
-                                    </span>
-                                </div>
+                                <Avatar 
+                                    :user="authStore.user" 
+                                    size="sm"
+                                />
                             </button>
 
                             <!-- Dropdown Menu -->
@@ -179,6 +178,7 @@ import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useThemeStore } from '../../stores/theme';
+import Avatar from '../Avatar.vue';
 
 const route = useRoute();
 const router = useRouter();

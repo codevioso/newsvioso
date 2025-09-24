@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -53,6 +54,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
                 'role_display_name' => $user->getRoleDisplayName(),
+                'avatar' => $user->avatar,
+                'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null,
             ],
             'token' => $token,
         ]);
@@ -90,6 +93,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
                 'role_display_name' => $user->getRoleDisplayName(),
+                'avatar' => $user->avatar,
+                'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null,
             ],
         ]);
     }

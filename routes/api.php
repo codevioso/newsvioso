@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // Profile routes
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'show']);
+        Route::post('/', [ProfileController::class, 'update']);
+        Route::post('/change-password', [ProfileController::class, 'changePassword']);
+    });
 
     // Super Admin routes
     Route::middleware('role:super_admin')->prefix('admin')->group(function () {

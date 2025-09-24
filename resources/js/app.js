@@ -11,7 +11,9 @@ import Login from './pages/auth/Login.vue';
 import ForgotPassword from './pages/auth/ForgotPassword.vue';
 import ResetPassword from './pages/auth/ResetPassword.vue';
 import Dashboard from './pages/Dashboard.vue';
-import TestTailwind from './pages/TestTailwind.vue';
+import Profile from './pages/profile/Profile.vue';
+import ProfileUpdate from './pages/profile/ProfileUpdate.vue';
+import ChangePassword from './pages/profile/ChangePassword.vue';
 
 const routes = [
     {
@@ -43,9 +45,22 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-        path: '/secure/administrator/test',
-        name: 'test-tailwind',
-        component: TestTailwind
+        path: '/secure/administrator/profile',
+        name: 'profile',
+        component: Profile,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/secure/administrator/profile/update',
+        name: 'profile-update',
+        component: ProfileUpdate,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/secure/administrator/profile/change/password',
+        name: 'change-password',
+        component: ChangePassword,
+        meta: { requiresAuth: true }
     }
 ];
 
@@ -55,13 +70,19 @@ const router = createRouter({
 });
 
 // Navigation guards
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore();
     const themeStore = useThemeStore();
     
     // Initialize theme
     themeStore.initTheme();
 
+    // Wait for auth initialization if not already done
+    if (!authStore.isInitialized) {
+        await authStore.initAuth();
+    }
+
+    // Check authentication requirements
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
         next('/secure/administrator/login');
     } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
