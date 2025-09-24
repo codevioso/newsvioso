@@ -3,6 +3,9 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,12 +47,35 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Super Admin routes
     Route::middleware('role:super_admin')->prefix('admin')->group(function () {
-        // Add super admin specific routes here
+        // Admin management routes
+        Route::get('/admins', [AdminController::class, 'index']);
+        Route::post('/admins', [AdminController::class, 'store']);
+        Route::get('/admins/{admin}', [AdminController::class, 'show']);
+        Route::put('/admins/{admin}', [AdminController::class, 'update']);
+        Route::delete('/admins/{admin}', [AdminController::class, 'destroy']);
+        Route::get('/roles', [AdminController::class, 'getRoles']);
     });
 
     // Editor routes
     Route::middleware('role:editor')->prefix('editor')->group(function () {
         // Add editor specific routes here
+    });
+
+    // Settings routes (accessible by super_admin and editor)
+    Route::middleware('role:super_admin,editor')->prefix('settings')->group(function () {
+        // Categories routes
+        Route::get('/categories', [CategoryController::class, 'index']);
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::get('/categories/{category}', [CategoryController::class, 'show']);
+        Route::put('/categories/{category}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+        
+        // Tags routes
+        Route::get('/tags', [TagController::class, 'index']);
+        Route::post('/tags', [TagController::class, 'store']);
+        Route::get('/tags/{tag}', [TagController::class, 'show']);
+        Route::put('/tags/{tag}', [TagController::class, 'update']);
+        Route::delete('/tags/{tag}', [TagController::class, 'destroy']);
     });
 
     // Reporter routes

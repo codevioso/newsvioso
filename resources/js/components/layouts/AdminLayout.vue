@@ -31,6 +31,17 @@
                         <!-- Super Admin Menu -->
                         <template v-if="authStore.hasRole('super_admin')">
                             <router-link
+                                to="/secure/administrator/admins"
+                                class="inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors"
+                                :class="isActive('/secure/administrator/admins') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                            >
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                Admins
+                            </router-link>
+
+                            <router-link
                                 to="/secure/administrator/users"
                                 class="inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors"
                                 :class="isActive('/secure/administrator/users') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
@@ -41,17 +52,48 @@
                                 Users
                             </router-link>
 
-                            <router-link
-                                to="/secure/administrator/settings"
-                                class="inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors"
-                                :class="isActive('/secure/administrator/settings') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
-                            >
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                Settings
-                            </router-link>
+                            <!-- Settings Dropdown -->
+                            <div class="relative" @click.stop>
+                                <button
+                                    @click="toggleSettingsDropdown"
+                                    class="inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors"
+                                    :class="isSettingsActive() ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                >
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Settings
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                <!-- Settings Dropdown Menu -->
+                                <div
+                                    v-show="settingsDropdownOpen"
+                                    class="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700 transform transition-all duration-200 ease-in-out"
+                                >
+                                    <router-link
+                                        to="/secure/administrator/settings/categories"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                    >
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        Categories
+                                    </router-link>
+                                    <router-link
+                                        to="/secure/administrator/settings/tags"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                    >
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        Tags
+                                    </router-link>
+                                </div>
+                            </div>
                         </template>
 
                         <!-- Editor Menu -->
@@ -66,6 +108,49 @@
                                 </svg>
                                 Content
                             </router-link>
+
+                            <!-- Settings Dropdown for Editor -->
+                            <div class="relative" @click.stop>
+                                <button
+                                    @click="toggleSettingsDropdown"
+                                    class="inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors"
+                                    :class="isSettingsActive() ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                >
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Settings
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                <!-- Settings Dropdown Menu -->
+                                <div
+                                    v-show="settingsDropdownOpen"
+                                    class="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700 transform transition-all duration-200 ease-in-out"
+                                >
+                                    <router-link
+                                        to="/secure/administrator/settings/categories"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                    >
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        Categories
+                                    </router-link>
+                                    <router-link
+                                        to="/secure/administrator/settings/tags"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                    >
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        Tags
+                                    </router-link>
+                                </div>
+                            </div>
                         </template>
 
                         <!-- Reporter Menu -->
@@ -186,6 +271,7 @@ const authStore = useAuthStore();
 const themeStore = useThemeStore();
 
 const profileDropdownOpen = ref(false);
+const settingsDropdownOpen = ref(false);
 
 const isDark = computed(() => themeStore.isDark);
 
@@ -195,10 +281,20 @@ const toggleTheme = () => {
 
 const toggleProfileDropdown = () => {
     profileDropdownOpen.value = !profileDropdownOpen.value;
+    settingsDropdownOpen.value = false; // Close settings dropdown
+};
+
+const toggleSettingsDropdown = () => {
+    settingsDropdownOpen.value = !settingsDropdownOpen.value;
+    profileDropdownOpen.value = false; // Close profile dropdown
 };
 
 const isActive = (path) => {
     return route.path === path;
+};
+
+const isSettingsActive = () => {
+    return route.path.startsWith('/secure/administrator/settings');
 };
 
 const handleLogout = async () => {
@@ -214,6 +310,7 @@ const handleLogout = async () => {
 document.addEventListener('click', (event) => {
     if (!event.target.closest('.relative')) {
         profileDropdownOpen.value = false;
+        settingsDropdownOpen.value = false;
     }
 });
 </script>

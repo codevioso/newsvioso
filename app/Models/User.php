@@ -26,6 +26,7 @@ class User extends Authenticatable
         'avatar',
         'reset_code',
         'reset_code_expires_at',
+        'is_active',
     ];
 
     /**

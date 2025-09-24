@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamp('reset_code_expires_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->tinyInteger('is_active')->default(1);
             $table->rememberToken();
             $table->timestamps();
         });
