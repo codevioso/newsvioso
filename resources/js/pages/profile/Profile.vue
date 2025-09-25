@@ -196,7 +196,7 @@ const getRoleDotClass = (role) => {
 
 const fetchProfile = async () => {
     try {
-        const response = await axios.get('/api/profile');
+        const response = await axios.get('/api/secure/admin/profile');
         user.value = response.data.user;
     } catch (error) {
         console.error('Error fetching profile:', error);

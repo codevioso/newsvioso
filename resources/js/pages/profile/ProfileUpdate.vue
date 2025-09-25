@@ -283,7 +283,7 @@ const handleUpdateProfile = async () => {
 
 const fetchProfile = async () => {
     try {
-        const response = await axios.get('/api/profile');
+        const response = await axios.get('/api/secure/admin/profile');
         user.value = response.data.user;
         form.name = user.value.name;
         form.email = user.value.email;

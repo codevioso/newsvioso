@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials) {
             this.isLoading = true;
             try {
-                const response = await axios.post('/api/auth/login', credentials);
+                const response = await axios.post('/api/secure/admin/auth/login', credentials);
                 
                 this.token = response.data.token;
                 this.user = response.data.user;
@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', {
         async logout() {
             try {
                 if (this.token) {
-                    await axios.post('/api/auth/logout');
+                    await axios.post('/api/secure/admin/auth/logout');
                 }
             } catch (error) {
                 console.error('Logout error:', error);
@@ -60,10 +60,10 @@ export const useAuthStore = defineStore('auth', {
                 this.isInitialized = true;
                 return;
             }
-            
+
             try {
                 console.log('Fetching user data...');
-                const response = await axios.get('/api/auth/me');
+                const response = await axios.get('/api/secure/admin/auth/me');
                 this.user = response.data.user;
                 
                 // Add avatar URL if avatar exists
@@ -86,7 +86,7 @@ export const useAuthStore = defineStore('auth', {
         async forgotPassword(email) {
             this.isLoading = true;
             try {
-                const response = await axios.post('/api/auth/forgot-password', { email });
+                const response = await axios.post('/api/secure/admin/auth/forgot-password', { email });
                 return response.data;
             } catch (error) {
                 throw error.response?.data || error;
@@ -98,7 +98,7 @@ export const useAuthStore = defineStore('auth', {
         async resetPassword(data) {
             this.isLoading = true;
             try {
-                const response = await axios.post('/api/auth/reset-password', data);
+                const response = await axios.post('/api/secure/admin/auth/reset-password', data);
                 return response.data;
             } catch (error) {
                 throw error.response?.data || error;
@@ -161,7 +161,7 @@ export const useAuthStore = defineStore('auth', {
                     formData.append('avatar', data.avatar);
                 }
 
-                const response = await axios.post('/api/profile', formData, {
+                const response = await axios.post('/api/secure/admin/profile', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -187,7 +187,7 @@ export const useAuthStore = defineStore('auth', {
         async changePassword(data) {
             this.isLoading = true;
             try {
-                const response = await axios.post('/api/profile/change-password', data);
+                const response = await axios.post('/api/secure/admin/profile/change-password', data);
                 return response.data;
             } catch (error) {
                 throw error.response?.data || error;

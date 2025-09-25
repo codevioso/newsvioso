@@ -19,6 +19,7 @@ import ArticleList from '../pages/articles/ArticleList.vue';
 import ArticleCreate from '../pages/articles/ArticleCreate.vue';
 import ArticleEdit from '../pages/articles/ArticleEdit.vue';
 import ArticlePreview from '../pages/articles/ArticlePreview.vue';
+import ActionButtonsDemo from '../pages/articles/ActionButtonsDemo.vue';
 
 const routes = [
     {
@@ -146,6 +147,13 @@ const routes = [
         path: '/secure/administrator/articles/:id/preview',
         name: 'article-preview',
         component: ArticlePreview,
+        meta: { requiresAuth: true, requiresRole: 'super_admin,editor,reporter' }
+    },
+    // Demo route for testing action buttons
+    {
+        path: '/secure/administrator/demo/action-buttons',
+        name: 'action-buttons-demo',
+        component: ActionButtonsDemo,
         meta: { requiresAuth: true, requiresRole: 'super_admin,editor,reporter' }
     }
 ];

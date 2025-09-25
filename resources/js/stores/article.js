@@ -55,7 +55,7 @@ export const useArticleStore = defineStore('article', {
                     }
                 });
 
-                const response = await axios.get('/api/articles', { params });
+                const response = await axios.get('/api/secure/admin/articles', { params });
 
                 if (response.data.success) {
                     this.articles = response.data.data.data;
@@ -81,7 +81,7 @@ export const useArticleStore = defineStore('article', {
             this.error = null;
 
             try {
-                const response = await axios.get(`/api/articles/${id}`);
+                const response = await axios.get(`/api/secure/admin/articles/${id}`);
 
                 if (response.data.success) {
                     this.article = response.data.data;
@@ -119,7 +119,7 @@ export const useArticleStore = defineStore('article', {
                     }
                 });
 
-                const response = await axios.post('/api/articles', formData, {
+                const response = await axios.post('/api/secure/admin/articles', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -168,10 +168,11 @@ export const useArticleStore = defineStore('article', {
                     }
                 });
 
-                const response = await axios.post(`/api/articles/${id}`, formData, {
+                const response = await axios.post(`/api/secure/admin/articles/${id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
+                    params: { _method: 'PUT' }
                 });
 
                 if (response.data.success) {
@@ -207,7 +208,7 @@ export const useArticleStore = defineStore('article', {
             this.success = null;
 
             try {
-                const response = await axios.delete(`/api/articles/${id}`);
+                const response = await axios.delete(`/api/secure/admin/articles/${id}`);
 
                 if (response.data.success) {
                     this.success = response.data.message || 'Article deleted successfully';
@@ -235,7 +236,7 @@ export const useArticleStore = defineStore('article', {
             this.success = null;
 
             try {
-                const response = await axios.post('/api/articles/bulk-delete', { ids });
+                const response = await axios.post('/api/secure/admin/articles/bulk-delete', { ids });
 
                 if (response.data.success) {
                     this.success = response.data.message || 'Articles deleted successfully';
@@ -262,7 +263,7 @@ export const useArticleStore = defineStore('article', {
                 const formData = new FormData();
                 formData.append('image', file);
 
-                const response = await axios.post('/api/articles/upload-image', formData, {
+                const response = await axios.post('/api/secure/admin/articles/upload-image', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -284,7 +285,7 @@ export const useArticleStore = defineStore('article', {
 
         async fetchCategories() {
             try {
-                const response = await axios.get('/api/settings/categories');
+                const response = await axios.get('/api/secure/admin/settings/categories');
                 if (response.data.success) {
                     this.categories = response.data.data.data;
                 }
@@ -295,7 +296,7 @@ export const useArticleStore = defineStore('article', {
 
         async fetchTags() {
             try {
-                const response = await axios.get('/api/settings/tags');
+                const response = await axios.get('/api/secure/admin/settings/tags');
                 if (response.data.success) {
                     this.tags = response.data.data.data;
                 }
@@ -327,7 +328,7 @@ export const useArticleStore = defineStore('article', {
 
         async publishArticle(articleId) {
             try {
-                const response = await axios.put(`/api/admin/articles/${articleId}/publish`);
+                const response = await axios.put(`/api/secure/admin/articles/${articleId}/publish`);
                 if (response.data.success) {
                     this.success = 'Article published successfully';
                     // Update the article in the list if it exists
@@ -353,7 +354,7 @@ export const useArticleStore = defineStore('article', {
 
         async scheduleArticle(articleId, scheduledAt) {
             try {
-                const response = await axios.put(`/api/admin/articles/${articleId}/schedule`, {
+                const response = await axios.put(`/api/secure/admin/articles/${articleId}/schedule`, {
                     scheduled_at: scheduledAt
                 });
                 if (response.data.success) {

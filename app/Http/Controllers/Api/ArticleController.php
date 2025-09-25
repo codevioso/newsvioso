@@ -9,6 +9,7 @@ use App\Models\Tag;
 use App\Helpers\SlugHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -20,93 +21,102 @@ class ArticleController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Article::with(['category', 'tags', 'creator', 'updater']);
+        try {
+            $query = Article::with(['category', 'tags', 'creator', 'updater']);
 
-        // Search
-        if ($request->has('search') && !empty($request->search)) {
-            $query->search($request->search);
+            // Search
+            if ($request->has('search') && !empty($request->search)) {
+                $query->search($request->search);
+            }
+
+            // Filter by status
+            if ($request->has('status') && !empty($request->status)) {
+                $query->where('status', $request->status);
+            }
+
+            // Filter by category
+            if ($request->has('category_id') && !empty($request->category_id)) {
+                $query->byCategory($request->category_id);
+            }
+
+            // Filter by author
+            if ($request->has('author_id') && !empty($request->author_id)) {
+                $query->byAuthor($request->author_id);
+            }
+
+            // Filter by date range
+            if ($request->has('date_from') && !empty($request->date_from)) {
+                $query->where('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->has('date_to') && !empty($request->date_to)) {
+                $query->where('created_at', '<=', $request->date_to);
+            }
+
+            // Sort
+            $sortBy = $request->get('sort_by', 'created_at');
+            $sortOrder = $request->get('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
+
+            // Pagination
+            $perPage = $request->get('per_page', 15);
+            $articles = $query->paginate($perPage);
+
+            // Transform the data
+            $transformedArticles = [];
+            foreach ($articles->items() as $article) {
+                $transformedArticles[] = [
+                    'id' => $article->id,
+                    'title' => $article->title,
+                    'slug' => $article->slug,
+                    'excerpt' => $article->excerpt,
+                    'status' => $article->status,
+                    'scheduled_at' => $article->scheduled_at?->format('Y-m-d H:i:s'),
+                    'published_at' => $article->published_at?->format('Y-m-d H:i:s'),
+                    'featured_image' => $article->featured_image,
+                    'featured_image_url' => $article->featured_image_url,
+                    'category' => $article->category ? [
+                        'id' => $article->category->id,
+                        'title' => $article->category->title,
+                    ] : null,
+                    'tags' => $article->tags->map(function ($tag) {
+                        return [
+                            'id' => $tag->id,
+                            'title' => $tag->title,
+                        ];
+                    }),
+                    'author' => $article->creator ? [
+                        'id' => $article->creator->id,
+                        'name' => $article->creator->name,
+                    ] : null,
+                    'meta_title' => $article->meta_title,
+                    'meta_description' => $article->meta_description,
+                    'meta_keywords' => $article->meta_keywords,
+                    'is_active' => $article->is_active,
+                    'created_at' => $article->created_at->format('Y-m-d H:i:s'),
+                    'updated_at' => $article->updated_at->format('Y-m-d H:i:s'),
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'data' => $transformedArticles,
+                    'current_page' => $articles->currentPage(),
+                    'last_page' => $articles->lastPage(),
+                    'per_page' => $articles->perPage(),
+                    'total' => $articles->total(),
+                ],
+                'message' => 'Articles retrieved successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve articles',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Filter by status
-        if ($request->has('status') && !empty($request->status)) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by category
-        if ($request->has('category_id') && !empty($request->category_id)) {
-            $query->byCategory($request->category_id);
-        }
-
-        // Filter by author
-        if ($request->has('author_id') && !empty($request->author_id)) {
-            $query->byAuthor($request->author_id);
-        }
-
-        // Filter by date range
-        if ($request->has('date_from') && !empty($request->date_from)) {
-            $query->where('created_at', '>=', $request->date_from);
-        }
-
-        if ($request->has('date_to') && !empty($request->date_to)) {
-            $query->where('created_at', '<=', $request->date_to);
-        }
-
-        // Sort
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $articles = $query->paginate($perPage);
-
-        // Transform the data
-        $transformedArticles = [];
-        foreach ($articles->items() as $article) {
-            $transformedArticles[] = [
-                'id' => $article->id,
-                'title' => $article->title,
-                'slug' => $article->slug,
-                'excerpt' => $article->excerpt,
-                'status' => $article->status,
-                'scheduled_at' => $article->scheduled_at?->format('Y-m-d H:i:s'),
-                'published_at' => $article->published_at?->format('Y-m-d H:i:s'),
-                'featured_image' => $article->featured_image,
-                'featured_image_url' => $article->featured_image_url,
-                'category' => $article->category ? [
-                    'id' => $article->category->id,
-                    'title' => $article->category->title,
-                ] : null,
-                'tags' => $article->tags->map(function ($tag) {
-                    return [
-                        'id' => $tag->id,
-                        'title' => $tag->title,
-                    ];
-                }),
-                'author' => $article->creator ? [
-                    'id' => $article->creator->id,
-                    'name' => $article->creator->name,
-                ] : null,
-                'meta_title' => $article->meta_title,
-                'meta_description' => $article->meta_description,
-                'meta_keywords' => $article->meta_keywords,
-                'is_active' => $article->is_active,
-                'created_at' => $article->created_at->format('Y-m-d H:i:s'),
-                'updated_at' => $article->updated_at->format('Y-m-d H:i:s'),
-            ];
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'data' => $transformedArticles,
-                'current_page' => $articles->currentPage(),
-                'last_page' => $articles->lastPage(),
-                'per_page' => $articles->perPage(),
-                'total' => $articles->total(),
-            ],
-            'message' => 'Articles retrieved successfully'
-        ]);
     }
 
     /**
@@ -230,46 +240,55 @@ class ArticleController extends Controller
      */
     public function show(Article $article): JsonResponse
     {
-        $article->load(['category', 'tags', 'creator', 'updater']);
+        try {
+            $article->load(['category', 'tags', 'creator', 'updater']);
 
-        $articleData = [
-            'id' => $article->id,
-            'title' => $article->title,
-            'slug' => $article->slug,
-            'excerpt' => $article->excerpt,
-            'content' => $article->content,
-            'status' => $article->status,
-            'scheduled_at' => $article->scheduled_at?->format('Y-m-d H:i:s'),
-            'published_at' => $article->published_at?->format('Y-m-d H:i:s'),
-            'featured_image' => $article->featured_image,
-            'featured_image_url' => $article->featured_image_url,
-            'category' => $article->category ? [
-                'id' => $article->category->id,
-                'title' => $article->category->title,
-            ] : null,
-            'tags' => $article->tags->map(function ($tag) {
-                return [
-                    'id' => $tag->id,
-                    'title' => $tag->title,
-                ];
-            }),
-            'author' => $article->creator ? [
-                'id' => $article->creator->id,
-                'name' => $article->creator->name,
-            ] : null,
-            'meta_title' => $article->meta_title,
-            'meta_description' => $article->meta_description,
-            'meta_keywords' => $article->meta_keywords,
-            'is_active' => $article->is_active,
-            'created_at' => $article->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $article->updated_at->format('Y-m-d H:i:s'),
-        ];
+            $articleData = [
+                'id' => $article->id,
+                'title' => $article->title,
+                'slug' => $article->slug,
+                'excerpt' => $article->excerpt,
+                'content' => $article->content,
+                'status' => $article->status,
+                'scheduled_at' => $article->scheduled_at?->format('Y-m-d H:i:s'),
+                'published_at' => $article->published_at?->format('Y-m-d H:i:s'),
+                'featured_image' => $article->featured_image,
+                'featured_image_url' => $article->featured_image_url,
+                'category' => $article->category ? [
+                    'id' => $article->category->id,
+                    'title' => $article->category->title,
+                ] : null,
+                'tags' => $article->tags->map(function ($tag) {
+                    return [
+                        'id' => $tag->id,
+                        'title' => $tag->title,
+                    ];
+                }),
+                'author' => $article->creator ? [
+                    'id' => $article->creator->id,
+                    'name' => $article->creator->name,
+                ] : null,
+                'meta_title' => $article->meta_title,
+                'meta_description' => $article->meta_description,
+                'meta_keywords' => $article->meta_keywords,
+                'is_active' => $article->is_active,
+                'created_at' => $article->created_at->format('Y-m-d H:i:s'),
+                'updated_at' => $article->updated_at->format('Y-m-d H:i:s'),
+            ];
 
-        return response()->json([
-            'success' => true,
-            'data' => $articleData,
-            'message' => 'Article retrieved successfully'
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $articleData,
+                'message' => 'Article retrieved successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve article',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -493,51 +512,60 @@ class ArticleController extends Controller
      */
     public function preview(string $slug): JsonResponse
     {
-        $article = Article::where('slug', $slug)->first();
+        try {
+            $article = Article::where('slug', $slug)->first();
 
-        if (!$article) {
+            if (!$article) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Article not found'
+                ], 404);
+            }
+
+            $article->load(['category', 'tags', 'creator']);
+
+            $articleData = [
+                'id' => $article->id,
+                'title' => $article->title,
+                'slug' => $article->slug,
+                'excerpt' => $article->excerpt,
+                'content' => $article->content,
+                'status' => $article->status,
+                'published_at' => $article->published_at?->format('Y-m-d H:i:s'),
+                'featured_image_url' => $article->featured_image_url,
+                'category' => $article->category ? [
+                    'id' => $article->category->id,
+                    'title' => $article->category->title,
+                ] : null,
+                'tags' => $article->tags->map(function ($tag) {
+                    return [
+                        'id' => $tag->id,
+                        'title' => $tag->title,
+                    ];
+                }),
+                'author' => $article->creator ? [
+                    'id' => $article->creator->id,
+                    'name' => $article->creator->name,
+                ] : null,
+                'meta_title' => $article->meta_title,
+                'meta_description' => $article->meta_description,
+                'meta_keywords' => $article->meta_keywords,
+                'created_at' => $article->created_at->format('Y-m-d H:i:s'),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $articleData,
+                'message' => 'Article preview retrieved successfully'
+            ]);
+
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Article not found'
-            ], 404);
+                'message' => 'Failed to retrieve article preview',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $article->load(['category', 'tags', 'creator']);
-
-        $articleData = [
-            'id' => $article->id,
-            'title' => $article->title,
-            'slug' => $article->slug,
-            'excerpt' => $article->excerpt,
-            'content' => $article->content,
-            'status' => $article->status,
-            'published_at' => $article->published_at?->format('Y-m-d H:i:s'),
-            'featured_image_url' => $article->featured_image_url,
-            'category' => $article->category ? [
-                'id' => $article->category->id,
-                'title' => $article->category->title,
-            ] : null,
-            'tags' => $article->tags->map(function ($tag) {
-                return [
-                    'id' => $tag->id,
-                    'title' => $tag->title,
-                ];
-            }),
-            'author' => $article->creator ? [
-                'id' => $article->creator->id,
-                'name' => $article->creator->name,
-            ] : null,
-            'meta_title' => $article->meta_title,
-            'meta_description' => $article->meta_description,
-            'meta_keywords' => $article->meta_keywords,
-            'created_at' => $article->created_at->format('Y-m-d H:i:s'),
-        ];
-
-        return response()->json([
-            'success' => true,
-            'data' => $articleData,
-            'message' => 'Article preview retrieved successfully'
-        ]);
     }
 
     /**
@@ -545,11 +573,15 @@ class ArticleController extends Controller
      */
     private function storeFeaturedImage($file): string
     {
-        $year = date('Y');
-        $month = date('m');
-        $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-        
-        return $file->storeAs("articles/{$year}/{$month}/featured", $filename, 'public');
+        try {
+            $year = date('Y');
+            $month = date('m');
+            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            
+            return $file->storeAs("articles/{$year}/{$month}/featured", $filename, 'public');
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to store featured image: " . $e->getMessage());
+        }
     }
 
     /**
@@ -557,11 +589,15 @@ class ArticleController extends Controller
      */
     private function storeContentImage($file): string
     {
-        $year = date('Y');
-        $month = date('m');
-        $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-        
-        return $file->storeAs("articles/{$year}/{$month}/content", $filename, 'public');
+        try {
+            $year = date('Y');
+            $month = date('m');
+            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            
+            return $file->storeAs("articles/{$year}/{$month}/content", $filename, 'public');
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to store content image: " . $e->getMessage());
+        }
     }
 
     /**
@@ -569,28 +605,42 @@ class ArticleController extends Controller
      */
     private function processContentImages(string $content): string
     {
-        // Pattern to match base64 images
-        $pattern = '/<img[^>]+src="data:image\/([^;]+);base64,([^"]+)"/';
-        
-        return preg_replace_callback($pattern, function ($matches) {
-            $extension = $matches[1];
-            $base64Data = $matches[2];
+        try {
+            // Pattern to match base64 images
+            $pattern = '/<img[^>]+src="data:image\/([^;]+);base64,([^"]+)"/';
             
-            // Decode base64 data
-            $imageData = base64_decode($base64Data);
-            
-            // Generate filename
-            $year = date('Y');
-            $month = date('m');
-            $filename = time() . '_' . Str::random(10) . '.' . $extension;
-            $path = "articles/{$year}/{$month}/content/{$filename}";
-            
-            // Store the image
-            Storage::disk('public')->put($path, $imageData);
-            
-            // Return the new src
-            return 'src="/storage/' . $path . '"';
-        }, $content);
+            return preg_replace_callback($pattern, function ($matches) {
+                try {
+                    $extension = $matches[1];
+                    $base64Data = $matches[2];
+                    
+                    // Decode base64 data
+                    $imageData = base64_decode($base64Data);
+                    
+                    if ($imageData === false) {
+                        throw new \Exception("Invalid base64 data");
+                    }
+                    
+                    // Generate filename
+                    $year = date('Y');
+                    $month = date('m');
+                    $filename = time() . '_' . Str::random(10) . '.' . $extension;
+                    $path = "articles/{$year}/{$month}/content/{$filename}";
+                    
+                    // Store the image
+                    Storage::disk('public')->put($path, $imageData);
+                    
+                    // Return the new src
+                    return 'src="/storage/' . $path . '"';
+                } catch (\Exception $e) {
+                    // Log the error but don't break the content processing
+                    Log::error("Failed to process base64 image: " . $e->getMessage());
+                    return $matches[0]; // Return original img tag if processing fails
+                }
+            }, $content);
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to process content images: " . $e->getMessage());
+        }
     }
 
     /**

@@ -1,4 +1,4 @@
-<template>
+Update <template>
     <AdminLayout>
         <div class="space-y-6">
             <!-- Header -->
@@ -124,7 +124,7 @@
                         <img
                             :src="article.featured_image_url"
                             :alt="article.title"
-                            class="w-full h-64 object-cover rounded-lg shadow-lg"
+                            class="w-full max-h-96 object-contain rounded-lg shadow-lg bg-gray-50 dark:bg-gray-700"
                         />
                     </div>
 

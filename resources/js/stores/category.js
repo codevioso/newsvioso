@@ -49,7 +49,7 @@ export const useCategoryStore = defineStore('category', {
                     }
                 });
 
-                const response = await axios.get('/api/settings/categories', {
+                const response = await axios.get('/api/secure/admin/settings/categories', {
                     params: queryParams
                 });
 
@@ -77,7 +77,7 @@ export const useCategoryStore = defineStore('category', {
             this.error = null;
             
             try {
-                const response = await axios.get(`/api/settings/categories/${id}`);
+                const response = await axios.get(`/api/secure/admin/settings/categories/${id}`);
                 
                 if (response.data.success) {
                     this.currentCategory = response.data.data;
@@ -99,7 +99,7 @@ export const useCategoryStore = defineStore('category', {
             this.error = null;
             
             try {
-                const response = await axios.post('/api/settings/categories', categoryData);
+                const response = await axios.post('/api/secure/admin/settings/categories', categoryData);
 
                 if (response.data.success) {
                     // Add the new category to the list
@@ -123,7 +123,7 @@ export const useCategoryStore = defineStore('category', {
             this.error = null;
             
             try {
-                const response = await axios.put(`/api/settings/categories/${id}`, categoryData);
+                const response = await axios.put(`/api/secure/admin/settings/categories/${id}`, categoryData);
 
                 if (response.data.success) {
                     // Update the category in the list
@@ -155,7 +155,7 @@ export const useCategoryStore = defineStore('category', {
             this.error = null;
             
             try {
-                const response = await axios.delete(`/api/settings/categories/${id}`);
+                const response = await axios.delete(`/api/secure/admin/settings/categories/${id}`);
                 
                 if (response.data.success) {
                     // Remove the category from the list

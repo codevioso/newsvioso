@@ -49,7 +49,7 @@ export const useAdminStore = defineStore('admin', {
                     }
                 });
 
-                const response = await axios.get('/api/admin/admins', {
+                const response = await axios.get('/api/secure/admin/admins', {
                     params: queryParams
                 });
 
@@ -77,7 +77,7 @@ export const useAdminStore = defineStore('admin', {
             this.error = null;
             
             try {
-                const response = await axios.get(`/api/admin/admins/${id}`);
+                const response = await axios.get(`/api/secure/admin/admins/${id}`);
                 
                 if (response.data.success) {
                     this.currentAdmin = response.data.data;
@@ -111,7 +111,7 @@ export const useAdminStore = defineStore('admin', {
                     formData.append('avatar', adminData.avatar);
                 }
 
-                const response = await axios.post('/api/admin/admins', formData, {
+                const response = await axios.post('/api/secure/admin/admins', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -154,7 +154,7 @@ export const useAdminStore = defineStore('admin', {
                     formData.append('avatar', adminData.avatar);
                 }
 
-                const response = await axios.post(`/api/admin/admins/${id}`, formData, {
+                const response = await axios.post(`/api/secure/admin/admins/${id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -191,7 +191,7 @@ export const useAdminStore = defineStore('admin', {
             this.error = null;
             
             try {
-                const response = await axios.delete(`/api/admin/admins/${id}`);
+                const response = await axios.delete(`/api/secure/admin/admins/${id}`);
                 
                 if (response.data.success) {
                     // Remove the admin from the list
@@ -218,7 +218,7 @@ export const useAdminStore = defineStore('admin', {
 
         async fetchRoles() {
             try {
-                const response = await axios.get('/api/admin/roles');
+                const response = await axios.get('/api/secure/admin/roles');
                 
                 if (response.data.success) {
                     this.roles = response.data.data;

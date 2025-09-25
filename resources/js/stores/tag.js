@@ -49,7 +49,7 @@ export const useTagStore = defineStore('tag', {
                     }
                 });
 
-                const response = await axios.get('/api/settings/tags', {
+                const response = await axios.get('/api/secure/admin/settings/tags', {
                     params: queryParams
                 });
 
@@ -77,7 +77,7 @@ export const useTagStore = defineStore('tag', {
             this.error = null;
             
             try {
-                const response = await axios.get(`/api/settings/tags/${id}`);
+                const response = await axios.get(`/api/secure/admin/settings/tags/${id}`);
                 
                 if (response.data.success) {
                     this.currentTag = response.data.data;
@@ -99,7 +99,7 @@ export const useTagStore = defineStore('tag', {
             this.error = null;
             
             try {
-                const response = await axios.post('/api/settings/tags', tagData);
+                const response = await axios.post('/api/secure/admin/settings/tags', tagData);
 
                 if (response.data.success) {
                     // Add the new tag to the list
@@ -123,7 +123,7 @@ export const useTagStore = defineStore('tag', {
             this.error = null;
             
             try {
-                const response = await axios.put(`/api/settings/tags/${id}`, tagData);
+                const response = await axios.put(`/api/secure/admin/settings/tags/${id}`, tagData);
 
                 if (response.data.success) {
                     // Update the tag in the list
@@ -155,7 +155,7 @@ export const useTagStore = defineStore('tag', {
             this.error = null;
             
             try {
-                const response = await axios.delete(`/api/settings/tags/${id}`);
+                const response = await axios.delete(`/api/secure/admin/settings/tags/${id}`);
                 
                 if (response.data.success) {
                     // Remove the tag from the list

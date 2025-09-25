@@ -121,35 +121,37 @@
                 </div>
 
                 <div v-else>
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Article
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Category
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Tags
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Author
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Published
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Created
-                                </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
+                    <!-- Desktop Table -->
+                    <div class="hidden md:block overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Article
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Category
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Tags
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Author
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Published
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Created
+                                    </th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <tr v-for="article in articles" :key="article.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <td class="px-6 py-4">
@@ -223,8 +225,95 @@
                                     />
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="md:hidden space-y-4">
+                        <div 
+                            v-for="article in articles" 
+                            :key="article.id" 
+                            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4"
+                        >
+                            <!-- Article Header -->
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                    <div v-if="article.featured_image_url" class="flex-shrink-0 h-12 w-12">
+                                        <img
+                                            :src="article.featured_image_url"
+                                            :alt="article.title"
+                                            class="h-12 w-12 rounded-lg object-cover"
+                                        />
+                                    </div>
+                                    <div v-else class="flex-shrink-0 h-12 w-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                            {{ article.title }}
+                                        </h3>
+                                        <p v-if="article.excerpt" class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                            {{ article.excerpt }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <ActionButtons
+                                    :article="article"
+                                    @delete="deleteArticle"
+                                />
+                            </div>
+
+                            <!-- Article Details -->
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div>
+                                    <span class="text-gray-500 dark:text-gray-400">Category:</span>
+                                    <span v-if="article.category" class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                        {{ article.category.title }}
+                                    </span>
+                                    <span v-else class="ml-1 text-gray-500 dark:text-gray-400">None</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 dark:text-gray-400">Author:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ article.author?.name || 'Unknown' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 dark:text-gray-400">Status:</span>
+                                    <span
+                                        :class="getStatusBadgeClass(article.status)"
+                                        class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                                    >
+                                        {{ getStatusText(article.status) }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 dark:text-gray-400">Created:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ formatDate(article.created_at) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div v-if="article.tags && article.tags.length > 0" class="mt-3">
+                                <div class="flex flex-wrap gap-1">
+                                    <span
+                                        v-for="tag in article.tags.slice(0, 3)"
+                                        :key="tag.id"
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                                    >
+                                        {{ tag.title }}
+                                    </span>
+                                    <span
+                                        v-if="article.tags.length > 3"
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                                    >
+                                        +{{ article.tags.length - 3 }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -393,6 +482,7 @@ const confirmDelete = async () => {
             await articleStore.fetchArticles();
         } catch (error) {
             console.error('Error deleting article:', error);
+            // You might want to show an error message to the user here
         } finally {
             deleting.value = false;
         }
