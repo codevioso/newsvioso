@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\ArticleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -76,6 +77,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/tags/{tag}', [TagController::class, 'show']);
         Route::put('/tags/{tag}', [TagController::class, 'update']);
         Route::delete('/tags/{tag}', [TagController::class, 'destroy']);
+    });
+
+    // Article routes (accessible by super_admin, editor, and reporter)
+    Route::middleware('role:super_admin,editor,reporter')->prefix('articles')->group(function () {
+        Route::get('/', [ArticleController::class, 'index']);
+        Route::post('/', [ArticleController::class, 'store']);
+        Route::get('/{article}', [ArticleController::class, 'show']);
+        Route::put('/{article}', [ArticleController::class, 'update']);
+        Route::delete('/{article}', [ArticleController::class, 'destroy']);
+        Route::post('/bulk-delete', [ArticleController::class, 'bulkDelete']);
+        Route::post('/upload-image', [ArticleController::class, 'uploadImage']);
+        Route::get('/preview/{slug}', [ArticleController::class, 'preview']);
+        Route::put('/{article}/publish', [ArticleController::class, 'publish']);
+        Route::put('/{article}/schedule', [ArticleController::class, 'schedule']);
     });
 
     // Reporter routes

@@ -15,6 +15,10 @@ import CategoryEdit from '../pages/settings/CategoryEdit.vue';
 import TagList from '../pages/settings/TagList.vue';
 import TagCreate from '../pages/settings/TagCreate.vue';
 import TagEdit from '../pages/settings/TagEdit.vue';
+import ArticleList from '../pages/articles/ArticleList.vue';
+import ArticleCreate from '../pages/articles/ArticleCreate.vue';
+import ArticleEdit from '../pages/articles/ArticleEdit.vue';
+import ArticlePreview from '../pages/articles/ArticlePreview.vue';
 
 const routes = [
     {
@@ -118,6 +122,31 @@ const routes = [
         name: 'tag-edit',
         component: TagEdit,
         meta: { requiresAuth: true, requiresRole: 'super_admin,editor' }
+    },
+    // Article Routes
+    {
+        path: '/secure/administrator/articles',
+        name: 'article-list',
+        component: ArticleList,
+        meta: { requiresAuth: true, requiresRole: 'super_admin,editor,reporter' }
+    },
+    {
+        path: '/secure/administrator/articles/create',
+        name: 'article-create',
+        component: ArticleCreate,
+        meta: { requiresAuth: true, requiresRole: 'super_admin,editor,reporter' }
+    },
+    {
+        path: '/secure/administrator/articles/:id/edit',
+        name: 'article-edit',
+        component: ArticleEdit,
+        meta: { requiresAuth: true, requiresRole: 'super_admin,editor,reporter' }
+    },
+    {
+        path: '/secure/administrator/articles/:id/preview',
+        name: 'article-preview',
+        component: ArticlePreview,
+        meta: { requiresAuth: true, requiresRole: 'super_admin,editor,reporter' }
     }
 ];
 
